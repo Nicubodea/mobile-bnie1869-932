@@ -29,6 +29,40 @@
 
             </android.support.design.widget.TabLayout>
 
+            <TextView
+                android:id="@+id/streetText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <NumberPicker
+                android:id="@+id/pickerTotal"
+                android:layout_width="match_parent"
+                android:layout_height="58dp" />
+
+            <NumberPicker
+                android:id="@+id/pickerAvailable"
+                android:layout_width="match_parent"
+                android:layout_height="58dp" />
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Delete" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/piechart"
+                android:layout_width="match_parent"
+                android:layout_height="285dp">
+
+            </com.github.mikephil.charting.charts.PieChart>
+
         </LinearLayout>
 
     </ScrollView>

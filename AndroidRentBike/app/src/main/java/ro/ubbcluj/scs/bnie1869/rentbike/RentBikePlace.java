@@ -1,14 +1,27 @@
 package ro.ubbcluj.scs.bnie1869.rentbike;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
+import java.util.UUID;
+
 /**
  * Created by nbodea on 11/5/2017.
  */
 
+@Entity(tableName = "rentbikeplaces")
 public class RentBikePlace {
+    @PrimaryKey
+            @ColumnInfo(name="address")
     String address;
+            @ColumnInfo(name="number_bikes")
     Integer numberOfBikes;
+            @ColumnInfo(name="number_available")
     Integer numberOfAvailableBikes;
 
+    @Ignore
     public RentBikePlace(String address, Integer numberOfBikes, Integer numberOfAvailableBikes) {
         this.address = address;
         this.numberOfBikes = numberOfBikes;
@@ -37,7 +50,7 @@ public class RentBikePlace {
 
     @Override
     public String toString() {
-        return address;
+        return address + ": " + this.numberOfAvailableBikes.toString() + "/" + this.numberOfBikes.toString();
     }
 
     public Integer getNumberOfAvailableBikes() {

@@ -1,6 +1,9 @@
 package ro.ubbcluj.scs.bnie1869.rentbike;
 
+import android.annotation.SuppressLint;
+import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +20,10 @@ public class MainActivity extends AppCompatActivity {
 
     Boolean bSubjectChanged = false;
     static List<RentBikePlace> listOfBikes;
+    static RentBikePlaceDB databaseSingleton;
+    static Synchronizer synchronizer;
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +52,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        MainActivity.listOfBikes = new ArrayList<>();
-        MainActivity.listOfBikes.add(new RentBikePlace("Strada Fabricii nr. 16", 21, 10));
-        MainActivity.listOfBikes.add(new RentBikePlace("Strada 21 Decembrie 1989", 44, 15));
-        MainActivity.listOfBikes.add(new RentBikePlace("Strada Alunelor nr. 44", 66, 33));
+        // init the db
+        MainActivity.databaseSingleton = Room.databaseBuilder(getApplicationContext(), RentBikePlaceDB.class, "dummy-database").build();
+        MainActivity.synchronizer = new Synchronizer(MainActivity.databaseSingleton);
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                MainActivity.listOfBikes = MainActivity.synchronizer.getList();
+                return null;
+            }
+        }.execute();
+
+
+        //MainActivity.listOfBikes.add(new RentBikePlace("Strada Fabricii nr. 16", 21, 10));
+        //MainActivity.listOfBikes.add(new RentBikePlace("Strada 21 Decembrie 1989", 44, 15));
+        //MainActivity.listOfBikes.add(new RentBikePlace("Strada Alunelor nr. 44", 66, 33));
 
 
     }

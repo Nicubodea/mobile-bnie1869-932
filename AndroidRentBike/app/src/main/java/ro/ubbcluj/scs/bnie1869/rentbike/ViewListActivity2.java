@@ -5,8 +5,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,7 @@ import java.util.stream.Collectors;
 
 public class ViewListActivity2 extends AppCompatActivity {
 
+    public static ListView staticMyList;
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -25,6 +29,7 @@ public class ViewListActivity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_list2);
 
+        ViewListActivity2.staticMyList = findViewById(R.id.mylist);
         TabLayout layout = findViewById(R.id.viewListTabs);
         layout.getTabAt(1).select();
 
@@ -48,30 +53,42 @@ public class ViewListActivity2 extends AppCompatActivity {
 
             }
         });
+
+        Button createButton = findViewById(R.id.createButton);
+
+        createButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ViewListActivity2.this, CreateActivity.class));
+            }
+        });
     }
 
 
     void populateBikeList() {
+
         List<RentBikePlace> currentList = getBikeList();
 
-        int i;
-        LinearLayout listLayout = findViewById(R.id.listlayout);
+        ListView listView = findViewById(R.id.mylist);
 
-        for(i=0; i< currentList.size(); i++)
-        {
-            Button y = new Button(this);
-            y.setText(currentList.get(i).toString());
-            y.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onClickGoToDetails(view);
-                }
-            });
+        listView.setAdapter(new ArrayAdapter<RentBikePlace>(this, android.R.layout.simple_list_item_1, MainActivity.listOfBikes));
 
-            listLayout.addView(y);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @Override
+            public void onItemClick(AdapterView<?> parent, final View view,
+                                    int position, long id) {
+                RentBikePlace item = (RentBikePlace) parent.getItemAtPosition(position);
+                String address = item.getAddress();
 
-        }
+                Intent intent;
+                intent = new Intent(ViewListActivity2.this, DetailsActivity.class);
+                intent.putExtra("address", address);
+                startActivity(intent);
+            }
+
+        });
+
     }
 
 
@@ -79,13 +96,5 @@ public class ViewListActivity2 extends AppCompatActivity {
        return MainActivity.listOfBikes;
 
     }
-
-
-    void onClickGoToDetails(View v) {
-        Intent intent = new Intent(this, DetailsActivity.class);
-        intent.putExtra("address", ((Button) v).getText());
-        startActivity(intent);
-    }
-
 
 }

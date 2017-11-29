@@ -4,48 +4,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.MainActivity">
+    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.CreateActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/listlayout"
+            android:id="@+id/detailslayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <android.support.design.widget.TabLayout
-                android:id="@+id/viewListTabs"
+                android:id="@+id/createTabs"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="@+id/button">
 
                 <android.support.design.widget.TabItem
-                    android:id="@+id/contactTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Contact" />
-
-                <android.support.design.widget.TabItem
-                    android:id="@+id/viewListTab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View  List" />
+                    android:text="Back" />
 
             </android.support.design.widget.TabLayout>
 
-            <Button
-                android:id="@+id/createButton"
+            <EditText
+                android:id="@+id/createStreet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Create New" />
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:text="Name" />
 
-            <ListView
-                android:id="@+id/mylist"
+            <NumberPicker
+                android:id="@+id/createTotal"
                 android:layout_width="match_parent"
-                android:layout_height="464dp" />
+                android:layout_height="58dp" />
+
+            <NumberPicker
+                android:id="@+id/createAvailable"
+                android:layout_width="match_parent"
+                android:layout_height="58dp" />
+
+            <Button
+                android:id="@+id/createFinish"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Create" />
 
         </LinearLayout>
 
