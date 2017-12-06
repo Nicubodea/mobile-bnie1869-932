@@ -36,7 +36,7 @@ class AddElement extends React.Component {
         global.vieewlist.update_callback();
         global.sync.addOne(rentbikeplace.street, rentbikeplace);
 
-        global.sync.getAll();
+        //global.sync.getAll();
         this.props.navigation.goBack();
     }
 
