@@ -3,18 +3,30 @@ import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListV
 import Communications from 'react-native-communications';
 import {TabNavigator, NavigationActions, StackNavigator} from 'react-navigation';
 
-import Contact from './Modules/Contact';
-import ViewElement from './Modules/ViewElement';
-import ViewList from './Modules/ViewList';
-import AddElement from './Modules/AddElement';
-import {MySyncTask, Synchronizer} from './Modules/SyncTask';
+import Contact from './Modules/common/Contact';
+import ViewElement from './Modules/admin/ViewElement';
+import ViewList from './Modules/admin/ViewList';
+import AddElement from './Modules/admin/AddElement';
+import Login from './Modules/common/Login';
+import UserViewElement from './Modules/user/UserViewElement';
+import UserViewList from './Modules/user/UserViewList';
+
+
+import {LocalStorage} from './Modules/LocalStorageCalls';
 
 
 global.rentbikeplaces = [
 
 ];
 
-const RentBikeApp = TabNavigator({
+global.token = "";
+
+LocalStorage.getToken("token").then(() => console.log("my token is " + global.token));
+
+// we assume we are in online state until api fails
+global.devicestate = "online";
+
+const AdminTabNavigator = TabNavigator({
 	Home: {
 		screen: Contact,
 	},
@@ -28,46 +40,50 @@ const RentBikeApp = TabNavigator({
   animationEnabled: true,
 });
 
-
-
-const MainScreenNavigator = StackNavigator({
-	Home: { screen: RentBikeApp },
-	ViewElement: {
-		screen: ViewElement,
-		path: "ViewElement/:rentbikeplace"
-	},
+const AdminNavigator = StackNavigator({
+    Home: { screen: AdminTabNavigator },
+    ViewElement: {
+        screen: ViewElement,
+        path: "ViewElement/:rentbikeplace"
+    },
     AddElement: {
-	    screen: AddElement
+        screen: AddElement
     }
 });
 
+const UserTabNavigator = TabNavigator({
+        Home: {
+            screen: Contact,
+        },
+        ViewList: {
+            screen: UserViewList
+        },
 
-class MyNav extends React.Component {
-    constructor(props)
+    },
     {
-        super(props);
-    }
+        tabBarPosition: 'top',
+        animationEnabled: true,
+    });
 
-    componentDidMount() {
-        //alert(SyncAdapter.init);
+const UserNavigator = StackNavigator({
+   Home: { screen: UserTabNavigator},
+   ViewElement: {
+       screen: UserViewElement,
+       path: "UserViewElement/:rentbikeplace"
+   }
+});
+
+const MainScreenNavigator = StackNavigator({
+	Home: { screen: Login },
+    AdminPage: { screen: AdminNavigator},
+    UserPage: {screen: UserNavigator}
+});
 
 
-    }
+global.sync = LocalStorage;
 
-    render() {
-        return (
-            <MainScreenNavigator screenProps={{
-                data_set: new ListView.DataSource({ rowHasChanged: (r1, r2) => true })
-            }}/>
-        );
-    }
-}
+AppRegistry.registerComponent('MyNav', ()=>MainScreenNavigator);
 
-global.sync = Synchronizer;
-
-AppRegistry.registerComponent('MyNav', ()=>MyNav);
-AppRegistry.registerHeadlessTask('TASK_SYNC_ADAPTER', ()=> MySyncTask);
-
-export default MyNav;
+export default MainScreenNavigator;
 
 
