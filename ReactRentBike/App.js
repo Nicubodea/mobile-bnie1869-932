@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, AppRegistry} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, AppRegistry, NetInfo, Alert} from 'react-native';
 import Communications from 'react-native-communications';
 import {TabNavigator, NavigationActions, StackNavigator} from 'react-navigation';
 
@@ -13,18 +13,26 @@ import UserViewList from './Modules/user/UserViewList';
 
 
 import {LocalStorage} from './Modules/LocalStorageCalls';
+import {SyncController} from "./Modules/SyncController";
 
 
 global.rentbikeplaces = [
 
 ];
 
-global.token = "";
-
-LocalStorage.getToken("token").then(() => console.log("my token is " + global.token));
+global.token = null;
 
 // we assume we are in online state until api fails
 global.devicestate = "online";
+
+global.sync_controller = new SyncController();
+
+global.isLoggedIn = false;
+
+NetInfo.isConnected.addEventListener(
+    'connectionChange',
+    global.sync_controller.networkStateHasChanged.bind(global.sync_controller)
+);
 
 const AdminTabNavigator = TabNavigator({
 	Home: {
@@ -33,6 +41,21 @@ const AdminTabNavigator = TabNavigator({
 	ViewList: {
 		screen: ViewList
 	},
+    Logout: {
+        screen: Login,
+        navigationOptions: ({navigation}) => ({
+        tabBarOnPress: (scene, jumpToIndex) => {
+            return Alert.alert(
+                'Confirmation required'
+                ,'Do you really want to logout?'
+                ,[
+                    {text: 'Accept', onPress: () => { global.isLoggedIn = false; global.token = null; LocalStorage.removeOne("token").then(() => navigation.dispatch(NavigationActions.navigate({ routeName: 'Login' })))}},
+                    {text: 'Cancel'}
+                ]
+            );
+        },
+    })
+    }
 	
 },
 {
@@ -58,6 +81,21 @@ const UserTabNavigator = TabNavigator({
         ViewList: {
             screen: UserViewList
         },
+        Logout: {
+            screen: Login,
+            navigationOptions: ({navigation}) => ({
+                tabBarOnPress: (scene, jumpToIndex) => {
+                    return Alert.alert(
+                        'Confirmation required'
+                        ,'Do you really want to logout?'
+                        ,[
+                            {text: 'Accept', onPress: () => { navigation.dispatch(NavigationActions.navigate({ routeName: 'Login' }))}},
+                            {text: 'Cancel'}
+                        ]
+                    );
+                },
+            })
+        }
 
     },
     {
@@ -74,9 +112,17 @@ const UserNavigator = StackNavigator({
 });
 
 const MainScreenNavigator = StackNavigator({
-	Home: { screen: Login },
-    AdminPage: { screen: AdminNavigator},
-    UserPage: {screen: UserNavigator}
+	Login: { screen: Login },
+    AdminPage: { screen: AdminNavigator, navigationOptions: ({navigation}) => ({
+        header: null
+    }),},
+    UserPage: {screen: UserNavigator, navigationOptions: ({navigation}) => ({
+        header: null
+    }),},
+
+},
+{
+    initialRouteName: 'Login'
 });
 
 

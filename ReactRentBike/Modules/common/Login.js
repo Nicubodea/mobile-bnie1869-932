@@ -2,40 +2,66 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView} from 'react-native';
 import Communications from 'react-native-communications';
 import { ApiCalls } from "../ApiCalls";
+import {LocalStorage} from "../LocalStorageCalls";
 
 class Login extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {username:"", password:"", shouldShowLogin: true};
+        this.state = {username:"", password:"", shouldShowLogin: false};
         // at this point we should get the token and if we are already loggged in we should directly go to admin/user page
         // also verify the state here
         // if we are online, notify the user that they won't be able to login until they don't have internetz
 
+        if(!global.isLoggedIn) {
+            LocalStorage.getToken("token").then(() => {
+                if (global.token === null) {
+                    console.log("no token");
+                    this.setState({shouldShowLogin: true});
+                }
+                else {
+                    this.redirect_by_token();
+                }
+            });
+        }
+
+    }
+
+    redirect_by_token() {
+        global.isLoggedIn = true;
+
+        ApiCalls.get_my_user(global.token).then((result) => {
+
+            let user = JSON.parse(result["user"]);
+
+            if (user["role"] === 0) {
+                this.props.navigation.navigate("UserPage");
+            }
+            else if (user["role"] === 1) {
+                this.props.navigation.navigate("AdminPage");
+            }
+        })
     }
 
 
     login()
     {
-        let promise = ApiCalls.login(this.state.username, this.state.password);
-        promise.then((result) => {
+        if(global.devicestate === "offline")
+        {
+            alert("You should be online to be able to login");
+        }
+        else {
 
-            global.token = result["token"];
+            let promise = ApiCalls.login(this.state.username, this.state.password);
+            promise.then((result) => {
+                global.isLoggedIn = true;
+                global.token = result["token"];
 
-            ApiCalls.get_my_user(global.token).then((result) => {
-
-                let user = JSON.parse(result["user"]);
-                if(user["role"] === 0) {
-                    this.props.navigation.navigate("UserPage");
-                }
-                else if(user["role"] === 1) {
-                    this.props.navigation.navigate("AdminPage");
-                }
-
-            })
+                LocalStorage.setToken("token", global.token).then((result) => this.redirect_by_token());
 
 
-        });
+            });
+        }
     }
 
     render() {
@@ -55,7 +81,7 @@ class Login extends React.Component {
                     <Text>
                         Password
                     </Text>
-                    <TextInput style={styles.defaultTextInput} password={true} value={this.state.password}
+                    <TextInput style={styles.defaultTextInput} secureTextEntry={true} value={this.state.password}
                                onChangeText={(body) => this.setState({username: this.state.username, password: body})}>
                     </TextInput>
                     <Button style={styles.defaultButton} title="Login" onPress={this.login.bind(this)}>
@@ -65,7 +91,7 @@ class Login extends React.Component {
         }
         else
         {
-            return (<Text>You will be redirected in a second.</Text>);
+            return (<View><Text>Loading...</Text></View>);
         }
     }
 }

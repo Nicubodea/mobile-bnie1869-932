@@ -11,6 +11,7 @@ class UserViewList extends React.Component {
         // force re-render when data-set is changed.
         const data_set = new ListView.DataSource({rowHasChanged: (r1, r2) => true});
         global.vieewlist = this;
+        global.rentbikeplaces = [];
         global.sync.getAll();
         this.state = { dataSource: data_set.cloneWithRows(global.rentbikeplaces), };
 

@@ -7,7 +7,7 @@ class ViewElement extends React.Component {
     };
     constructor(props) {
         super(props);
-        this.state = {street: "", numberOfBikes:0, numberOfAvailable:0, active:"Active"};
+        this.state = {street: "", numberOfBikes:0, numberOfAvailable:0, active:"Active", state:""};
 
         let current_element = this.props.navigation.state.params["data"];
         this.state.street = current_element.street;
@@ -34,13 +34,14 @@ class ViewElement extends React.Component {
                 global.rentbikeplaces[i].numberOfBikes = rentbikeplace.numberOfBikes;
                 global.rentbikeplaces[i].numberOfAvailable = rentbikeplace.numberOfAvailable;
                 global.rentbikeplaces[i].active = rentbikeplace.active;
+                global.rentbikeplaces[i].state = "edited";
             }
         }
 
+        rentbikeplace.state = "edited";
         global.sync.editOne(rentbikeplace.street, rentbikeplace);
 
         global.vieewlist.update_callback();
-        this.forceUpdate();
         this.props.navigation.goBack();
     }
 
@@ -53,12 +54,15 @@ class ViewElement extends React.Component {
         let rentbikeplace = this.state;
         for(let i =0;i<global.rentbikeplaces.length;i++){
             if(global.rentbikeplaces[i].street.localeCompare(rentbikeplace.street)===0){
-                global.rentbikeplaces.splice(i, 1);
+                //global.rentbikeplaces.splice(i, 1);
+                global.rentbikeplaces[i].state = "deleted";
             }
         }
 
+        rentbikeplace.state = "deleted";
+
         global.vieewlist.update_callback();
-        global.sync.removeOne(rentbikeplace.street);
+        global.sync.editOne(rentbikeplace.street, rentbikeplace);
         this.props.navigation.goBack();
     }
 

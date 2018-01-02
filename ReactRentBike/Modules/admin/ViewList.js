@@ -11,6 +11,7 @@ class ViewList extends React.Component {
         // force re-render when data-set is changed.
         const data_set = new ListView.DataSource({rowHasChanged: (r1, r2) => true});
         global.vieewlist = this;
+        global.rentbikeplaces = [];
         global.sync.getAll();
         this.state = { dataSource: data_set.cloneWithRows(global.rentbikeplaces), };
 
@@ -33,6 +34,10 @@ class ViewList extends React.Component {
     }
 
     render_row(row_data) {
+        if(row_data.state === "deleted")
+        {
+            return null;
+        }
         return(
             <TouchableHighlight onPress={()=> this.do_edit(row_data)}>
                 <Text>

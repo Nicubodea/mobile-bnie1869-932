@@ -1,10 +1,11 @@
 export class ApiCalls {
 
-    static server_path = "http://192.168.100.21";
+    static server_path = "http://192.168.0.20";
 
     constructor() {
         }
 
+    // User-API
     static login(username, password) {
         return fetch(ApiCalls.server_path + "/login", {
             method: 'POST',
@@ -26,6 +27,39 @@ export class ApiCalls {
             body: "token="+token
         }).then((response) => response.json()).then((json) => ApiCalls._parse_json(json));
     }
+
+    static register(username, password) {
+
+    }
+
+    //RentBike API
+
+    static add_rent_bike(rentbikeplace) {
+        //return fetch(ApiCalls.server_path + "/add_rent_bike")
+    }
+
+    static delete_rent_bike(rentbikeplace) {
+
+    }
+
+    static edit_rent_bike(rentbikeplace) {
+
+    }
+
+    static merge_rent_bike(rentbikeplacelist) {
+
+    }
+
+
+    // rental api
+    static do_rent(rentbikeplace) {
+
+    }
+
+    static do_unrent(rentbikeplace) {
+
+    }
+
 
     static _parse_json(json) {
         try {

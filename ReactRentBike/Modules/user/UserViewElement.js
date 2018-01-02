@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, Alert, Picker} from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, Alert, Picker, TouchableHighlight} from 'react-native';
 import {Pie} from 'react-native-pathjs-charts';
 
 class UserViewElement extends React.Component {
@@ -7,59 +7,46 @@ class UserViewElement extends React.Component {
     };
     constructor(props) {
         super(props);
-        this.state = {street: "", numberOfBikes:0, numberOfAvailable:0, active:"Active"};
+        this.state = {street: "", numberOfBikes:0, numberOfAvailable:0, active:"Active", isRented:"false"};
 
         let current_element = this.props.navigation.state.params["data"];
         this.state.street = current_element.street;
         this.state.numberOfBikes = current_element.numberOfBikes;
         this.state.numberOfAvailable = current_element.numberOfAvailable;
         this.state.active = current_element.active;
+        this.state.isRented = current_element.isRented;
     }
 
-    edit() {
-        if(isNaN(this.state.numberOfBikes) || isNaN(this.state.numberOfAvailable))
-        {
-            alert("Invalid input numbers!");
-            return;
-        }
-        if(Number(this.state.numberOfAvailable) > Number(this.state.numberOfBikes))
-        {
-            alert("Number of available bikes can't be higher than number of bikes");
-            return;
-        }
-
+    rent() {
+        this.setState({isRented:"true"});
         let rentbikeplace = this.state;
+
         for(let i =0;i<global.rentbikeplaces.length;i++){
             if(global.rentbikeplaces[i].street.localeCompare(rentbikeplace.street)===0){
                 global.rentbikeplaces[i].numberOfBikes = rentbikeplace.numberOfBikes;
                 global.rentbikeplaces[i].numberOfAvailable = rentbikeplace.numberOfAvailable;
                 global.rentbikeplaces[i].active = rentbikeplace.active;
+                global.rentbikeplaces[i].state = "rented";
+                global.rentbikeplaces[i].isRented = "true";
             }
         }
-
         global.sync.editOne(rentbikeplace.street, rentbikeplace);
-
-        global.vieewlist.update_callback();
-        this.forceUpdate();
-        this.props.navigation.goBack();
     }
 
-
-    delete() {
-        Alert.alert( 'Delete', 'Do you really want to delete this entry?', [ {text: 'No', onPress: () => console.log("Delete canceled")}, {text: 'Yes', onPress: () => this.really_delete()}, ], { cancelable: false } )
-    }
-
-    really_delete() {
+    unrent() {
+        this.setState({isRented:"false"});
         let rentbikeplace = this.state;
+
         for(let i =0;i<global.rentbikeplaces.length;i++){
             if(global.rentbikeplaces[i].street.localeCompare(rentbikeplace.street)===0){
-                global.rentbikeplaces.splice(i, 1);
+                global.rentbikeplaces[i].numberOfBikes = rentbikeplace.numberOfBikes;
+                global.rentbikeplaces[i].numberOfAvailable = rentbikeplace.numberOfAvailable;
+                global.rentbikeplaces[i].active = rentbikeplace.active;
+                global.rentbikeplaces[i].state = "unrented";
+                global.rentbikeplaces[i].isRented = "false";
             }
         }
-
-        global.vieewlist.update_callback();
-        global.sync.removeOne(rentbikeplace.street);
-        this.props.navigation.goBack();
+        global.sync.editOne(rentbikeplace.street, rentbikeplace);
     }
 
     render() {
@@ -101,20 +88,28 @@ class UserViewElement extends React.Component {
                 color: '#ECF0F1'
             }
         };
+        let button = null;
+        if(this.state.isRented === true)
+        {
+            button = <Button title={"Rent"} onPress={()=>this.rent()} raised={true}/>
+        }
+        else
+        {
+            button = <Button title={"Unrent"} onPress={()=>this.rent()} raised={true}/>
+        }
+
         return (
             <ScrollView style={styles.container}>
                 <Text style={styles.titleText}>{this.state.street}</Text>
-                <Text>Number of bikes: </Text>
+                <Text>Number of bikes: {this.state.numberOfBikes.toString()} </Text>
 
-                <TextInput style={styles.defaultTextInput} value={this.state.numberOfBikes.toString()} onChangeText={(numberOfBikes)=>this.setState({numberOfBikes})}/>
-                <Text>Number of available bikes: </Text>
-                <TextInput style={styles.defaultTextInput} value={this.state.numberOfAvailable.toString()} onChangeText={(numberOfAvailable)=>this.setState({numberOfAvailable})}/>
-                <Picker selectedValue={this.state.active} onValueChange={(itemValue, itemIndex) => this.setState({active: itemValue})}>
-                    <Picker.Item label="Active" value="Active" />
-                    <Picker.Item label="Inactive" value="Inactive" />
-                </Picker>
-                <Button title={"Edit"} onPress={()=>this.edit()}/>
-                <Button title={"Delete"} onPress={()=>this.delete()} raised={true}/>
+                <Text>Number of available bikes: {this.state.numberOfAvailable.toString()} </Text>
+
+                <Text> State: {this.state.active} </Text>
+
+
+                {button}
+
                 <Pie
                     data={data}
                     accessorKey="number"

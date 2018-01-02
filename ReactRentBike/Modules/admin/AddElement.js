@@ -7,7 +7,7 @@ class AddElement extends React.Component {
     };
     constructor(props) {
         super(props);
-        this.state = {street: "", numberOfBikes:"", numberOfAvailable:"", active:"Active"};
+        this.state = {street: "", numberOfBikes:"", numberOfAvailable:"", active:"Active", state:"created"};
 
 
     }

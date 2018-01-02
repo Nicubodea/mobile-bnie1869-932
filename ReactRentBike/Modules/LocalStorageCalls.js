@@ -24,6 +24,10 @@ export class LocalStorage {
         return AsyncStorage.getItem(key, (error, result) => global.token = result)
     }
 
+    static async setToken(key, val) {
+        return AsyncStorage.setItem(key, val, (error) => LocalStorage.handleError(error));
+    }
+
     static async getAll()
     {
         console.log("Get all on async storage called!");
@@ -34,6 +38,10 @@ export class LocalStorage {
     static async keysReady(error, keys)
     {
         for (let i = 0; i < keys.length; i++) {
+            if(keys[i].localeCompare("token") === 0)
+            {
+                continue;
+            }
             AsyncStorage.getItem(keys[i], (error, result) => LocalStorage.getOne(error, result));
         }
     }

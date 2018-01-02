@@ -6,23 +6,12 @@ from dbd.DAO import DAO
 import hashlib
 
 class MobHttpServ(BaseHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == "/":
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"Welcome!")
-        elif self.path == "/get_all":
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"Not yet implemented")
-        else:
-            self.send_response(404)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(b"404 - not found!")
 
+    def not_found(self):
+        self.send_response(404)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"404 - not found!")
 
     def get_response_message(self, status, key, key_text):
         message = {}
@@ -119,6 +108,15 @@ class MobHttpServ(BaseHTTPRequestHandler):
         self.send_success_with_key("user", json.dumps(usernew))
 
 
+    def do_GET(self):
+        if self.path == "/get_all":
+            self.handle_get_get_all()
+        else:
+            self.send_response(404)
+            self.send_header("Content-type", "text/html")
+            self.end_headers()
+            self.wfile.write(b"404 - not found!")
+
     def do_POST(self):
         ctype, pdict = cgi.parse_header(self.headers['Content-type'])
         if ctype == 'multipart/form-data':
@@ -138,5 +136,49 @@ class MobHttpServ(BaseHTTPRequestHandler):
         elif self.path == "/get_my_user":
             self.handle_post_get_user(postvars)
 
+        elif self.path == "/add_new_rbp":
+            self.handle_post_create(postvars)
+
+        elif self.path == "/merge":
+            self.handle_post_merge(postvars)
+
+        else:
+            self.not_found()
+
         return
+
+    def do_DELETE(self):
+        ctype, pdict = cgi.parse_header(self.headers['Content-type'])
+        if ctype == 'multipart/form-data':
+            postvars = cgi.parse_multipart(self.rfile, pdict)
+        elif ctype == 'application/x-www-form-urlencoded':
+            length = int(self.headers['Content-length'])
+            postvars = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+        else:
+            postvars = {}
+
+        if self.path == "/delete_rbp":
+            self.handle_delete_rbp(postvars)
+        elif self.path == "/delete_rental":
+            self.handle_delete_rental(postvars)
+        else:
+            self.not_found()
+
+
+    def do_PUT(self):
+        ctype, pdict = cgi.parse_header(self.headers['Content-type'])
+        if ctype == 'multipart/form-data':
+            postvars = cgi.parse_multipart(self.rfile, pdict)
+        elif ctype == 'application/x-www-form-urlencoded':
+            length = int(self.headers['Content-length'])
+            postvars = cgi.parse_qs(self.rfile.read(length), keep_blank_values=1)
+        else:
+            postvars = {}
+        if self.path == "/edit_rbp":
+            self.handle_put_edit_rbp(postvars)
+        elif self.path == "/create_rental":
+            self.handle_put_add_rental(postvars)
+        else:
+            self.not_found()
+
 
