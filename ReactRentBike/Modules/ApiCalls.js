@@ -1,6 +1,7 @@
 export class ApiCalls {
 
     static server_path = "http://192.168.0.20";
+    static ws_server_path = "http://192.168.0.20:7474";
 
     constructor() {
         }

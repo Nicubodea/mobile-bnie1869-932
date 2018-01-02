@@ -89,7 +89,7 @@ const UserTabNavigator = TabNavigator({
                         'Confirmation required'
                         ,'Do you really want to logout?'
                         ,[
-                            {text: 'Accept', onPress: () => { navigation.dispatch(NavigationActions.navigate({ routeName: 'Login' }))}},
+                            {text: 'Accept', onPress: () => { global.isLoggedIn = false; global.token = null; LocalStorage.removeOne("token").then(() => navigation.dispatch(NavigationActions.navigate({ routeName: 'Login' })))}},
                             {text: 'Cancel'}
                         ]
                     );
@@ -112,7 +112,9 @@ const UserNavigator = StackNavigator({
 });
 
 const MainScreenNavigator = StackNavigator({
-	Login: { screen: Login },
+	Login: { screen: Login, navigationOptions: ({navigation}) => ({
+        header: null
+    }),},
     AdminPage: { screen: AdminNavigator, navigationOptions: ({navigation}) => ({
         header: null
     }),},

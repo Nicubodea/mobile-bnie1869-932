@@ -7,14 +7,17 @@ class UserViewElement extends React.Component {
     };
     constructor(props) {
         super(props);
-        this.state = {street: "", numberOfBikes:0, numberOfAvailable:0, active:"Active", isRented:"false"};
+        this.state = {street: "", numberOfBikes: 0, numberOfAvailable: 0, active: "Active", isRented: "false"};
 
         let current_element = this.props.navigation.state.params["data"];
         this.state.street = current_element.street;
         this.state.numberOfBikes = current_element.numberOfBikes;
         this.state.numberOfAvailable = current_element.numberOfAvailable;
         this.state.active = current_element.active;
-        this.state.isRented = current_element.isRented;
+        if (current_element.isRented) {
+            this.state.isRented = current_element.isRented;
+
+        }
     }
 
     rent() {
@@ -89,13 +92,13 @@ class UserViewElement extends React.Component {
             }
         };
         let button = null;
-        if(this.state.isRented === true)
+        if(this.state.isRented.localeCompare("false") === 0)
         {
             button = <Button title={"Rent"} onPress={()=>this.rent()} raised={true}/>
         }
         else
         {
-            button = <Button title={"Unrent"} onPress={()=>this.rent()} raised={true}/>
+            button = <Button title={"Unrent"} onPress={()=>this.unrent()} raised={true}/>
         }
 
         return (

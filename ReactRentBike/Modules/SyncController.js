@@ -18,14 +18,14 @@ export class SyncController extends React.Component {
             this.new_web_socket();
 
             console.log("merging results");
-            ApiCalls.merge_rent_bike(global.rentbikeplaces).then(result => this.merge_result(result));
+            //ApiCalls.merge_rent_bike(global.rentbikeplaces).then(result => this.merge_result(result));
 
 
         }
     }
 
     new_web_socket() {
-        let ws = new WebSocket('ws://192.168.0.20:7474');
+        let ws = new WebSocket(ApiCalls.ws_server_path);
 
         ws.onopen = () => {
         };
