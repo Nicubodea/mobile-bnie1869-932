@@ -35,7 +35,7 @@ class AddElement extends React.Component {
             return;
         }
 
-        global.sync_controller.element_created(this.state);
+        global.sync_controller.element_created(this.state, false);
 
         if(global.devicestate.localeCompare("online") === 0) {
             ApiCalls.add_rent_bike(this.state);

@@ -1,10 +1,12 @@
 import React from 'react';
 import {ApiCalls} from "./ApiCalls";
-
 export class SyncController extends React.Component {
     constructor(props) {
         super(props);
         this.ws = null;
+
+       
+
     }
 
     networkStateHasChanged(connected) {
@@ -43,7 +45,7 @@ export class SyncController extends React.Component {
             console.log(JSON.stringify(json));
 
             if(json.state.localeCompare("created") === 0) {
-                this.element_created(rentbikeplace)
+                this.element_created(rentbikeplace, true)
             }
             else if(json.state.localeCompare("deleted") === 0) {
                 this.element_deleted(rentbikeplace)
@@ -77,7 +79,7 @@ export class SyncController extends React.Component {
                 rentbikeplace['active'] = "Inactive";
             }
             if(final[i]['state'].localeCompare('created') === 0) {
-                this.element_created(rentbikeplace);
+                this.element_created(rentbikeplace, true);
             }
             else if(final[i]['state'].localeCompare('deleted') === 0) {
                 this.element_deleted(rentbikeplace);
@@ -91,7 +93,7 @@ export class SyncController extends React.Component {
     /*
     Server just signaled us that someone created a new element, we should add it to the list
      */
-    element_created(element) {
+    element_created(element, called_from_serv) {
 
         console.log("Create element " + JSON.stringify(element));
         for(let i=0; i<global.rentbikeplaces.length; i++)
@@ -103,6 +105,10 @@ export class SyncController extends React.Component {
                 global.rentbikeplaces[i].state = "";
                 return;
             }
+        }
+
+        if(called_from_serv) {
+
         }
 
         global.rentbikeplaces.push(element);
