@@ -41,6 +41,7 @@ class MobHttpServ(BaseHTTPRequestHandler):
         return
 
 
+    ############################################# POSTS ############################################################
     def handle_post_register(self, postvars):
         try:
             if postvars[b'username'][0] is None or postvars[b'password'][0] is None:
@@ -107,6 +108,190 @@ class MobHttpServ(BaseHTTPRequestHandler):
 
         self.send_success_with_key("user", json.dumps(usernew))
 
+
+    def _transform_rentbike(self, x):
+        dicti = {}
+        dicti['street'] = x['street']
+        dicti['active'] = 0 if x['active'] == 'Inactive' else 1
+        dicti['total'] = x['numberOfBikes']
+        dicti['available'] = x['numberOfAvailable']
+        try:
+            dicti['state'] = x['state']
+        except:
+            dicti['state'] = 'unchanged'
+        return dicti
+
+    def handle_post_create(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        street = postvars[b'street'][0].decode('utf-8')
+        total = postvars[b'total'][0].decode('utf-8')
+        available = postvars[b'available'][0].decode('utf-8')
+        active = postvars[b'active'][0].decode('utf-8')
+
+        if active == "Active":
+            active = 1
+        else:
+            active = 0
+
+        try:
+            user = jwt.decode(token, 'aceasta e cea mai buna parola', algorithms=['HS256'])
+            if int(user['role']) != 1:
+                raise Exception
+        except:
+            self.send_error_with_reason("Unauthorized!")
+            return
+
+        dao = DAO()
+
+        if not dao.add_rent_bike(street, total, available, active):
+            self.send_error_with_reason("Invalid data sent on create rentbike!")
+        else:
+            self.send_success_with_key("reason", "OK")
+
+
+    def handle_post_merge(self, postvars):
+        user_list = postvars[b'list'][0].decode('utf-8')
+        user_list = json.loads(user_list)
+
+        user_list = list(map(self._transform_rentbike, user_list))
+
+        print("Received user list: %s" % str(user_list))
+
+        dao = DAO()
+
+        to_return = []
+
+        for element in user_list:
+            if element['state'] == 'created':
+                dao.add_rent_bike(element['street'], element['total'], element['available'], element['active'])
+            elif element['state'] == 'edited':
+                dao.edit_rent_bike(0, element['street'], element['total'], element['available'], element['active'])
+            elif element['state'] == 'deleted':
+                dao.delete_rent_bike(element['street'])
+
+        serv_list = dao.get_all_rent_bike()
+
+        # find elements created and edited
+        for element in serv_list:
+            found = False
+            for element_2 in user_list:
+                if element['street'] == element_2['street']:
+                    if int(element['total']) != int(element_2['total']) or int(element['available']) != int(element_2['available']) or int(element['active']) != int(element_2['active']):
+                        to_return.append(element)
+                        to_return[len(to_return) - 1]['state'] = 'edited'
+                    found = True
+
+            if not found:
+                to_return.append(element)
+                to_return[len(to_return) - 1]['state'] = 'created'
+        # now find deleted elements
+        for element in user_list:
+            found = False
+            for element_2 in serv_list:
+                if element['street'] == element_2['street']:
+                    found = True
+                    break
+            if not found:
+                to_return.append(element)
+                to_return[len(to_return) - 1]['state'] = 'deleted'
+
+        print(to_return)
+
+        self.send_success_with_key("result", json.dumps(to_return))
+
+
+    ############################################## GETS ##############################################################
+    def handle_get_get_all(self):
+        dao = DAO()
+
+        r_list = dao.get_all_rent_bike()
+
+        self.send_success_with_key("result", json.dumps(r_list))
+
+
+
+    ############################################## DELETES ##########################################################
+    def handle_delete_rbp(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        street = postvars[b'street'][0].decode('utf-8')
+
+        try:
+            user = jwt.decode(token, 'aceasta e cea mai buna parola', algorithms=['HS256'])
+            if int(user['role']) != 1:
+                raise Exception
+        except:
+            self.send_error_with_reason("Unauthorized!")
+            return
+
+        dao = DAO()
+
+        if not dao.delete_rent_bike(street):
+            self.send_error_with_reason("Invalid data sent on delete rentbike!")
+        else:
+            self.send_success_with_key("reason", "OK")
+
+
+    def handle_delete_rental(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        street = postvars[b'street'][0].decode('utf-8')
+
+        try:
+            user = jwt.decode(token, 'aceasta e cea mai buna parola', algorithms=['HS256'])
+            if int(user['role']) != 0:
+                raise Exception
+        except:
+            self.send_error_with_reason("Unauthorized!")
+            return
+
+        dao = DAO()
+        if not dao.delete_rental(user['id'], street):
+            self.send_error_with_reason("Invalid data sent on delete rental!")
+        else:
+            self.send_success_with_key("reason", "OK")
+
+    ################################################### PUTS #######################################################
+    def handle_put_edit_rbp(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        street = postvars[b'street'][0].decode('utf-8')
+        total = postvars[b'total'][0].decode('utf-8')
+        available = postvars[b'available'][0].decode('utf-8')
+        active = bool(postvars[b'active'][0].decode('utf-8'))
+
+        try:
+            user = jwt.decode(token, 'aceasta e cea mai buna parola', algorithms=['HS256'])
+            if int(user['role']) != 1:
+                raise Exception
+        except:
+            self.send_error_with_reason("Unauthorized!")
+            return
+
+        dao = DAO()
+
+        if not dao.edit_rent_bike(0, street, total, available, active):
+            self.send_error_with_reason("Invalid data sent on create rentbike!")
+        else:
+            self.send_success_with_key("reason", "OK")
+
+
+    def handle_put_add_rental(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        street = postvars[b'street'][0].decode('utf-8')
+
+        try:
+            user = jwt.decode(token, 'aceasta e cea mai buna parola', algorithms=['HS256'])
+            if int(user['role']) != 0:
+                raise Exception
+        except:
+            self.send_error_with_reason("Unauthorized!")
+            return
+
+        dao = DAO()
+        if not dao.add_rental(user['id'], street):
+            self.send_error_with_reason("Invalid data sent on delete rental!")
+        else:
+            self.send_success_with_key("reason", "OK")
+
+    ######################################## HANDLE METHODS #########################################################
 
     def do_GET(self):
         if self.path == "/get_all":

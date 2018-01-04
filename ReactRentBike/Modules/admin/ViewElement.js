@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, Alert, Picker} from 'react-native';
 import {Pie} from 'react-native-pathjs-charts';
+import {ApiCalls} from "../ApiCalls";
 
 class ViewElement extends React.Component {
     static navigationOptions = {
@@ -29,19 +30,13 @@ class ViewElement extends React.Component {
         }
 
         let rentbikeplace = this.state;
-        for(let i =0;i<global.rentbikeplaces.length;i++){
-            if(global.rentbikeplaces[i].street.localeCompare(rentbikeplace.street)===0){
-                global.rentbikeplaces[i].numberOfBikes = rentbikeplace.numberOfBikes;
-                global.rentbikeplaces[i].numberOfAvailable = rentbikeplace.numberOfAvailable;
-                global.rentbikeplaces[i].active = rentbikeplace.active;
-                global.rentbikeplaces[i].state = "edited";
-            }
-        }
 
         rentbikeplace.state = "edited";
-        global.sync.editOne(rentbikeplace.street, rentbikeplace);
 
-        global.vieewlist.update_callback();
+        global.sync_controller.element_modified(rentbikeplace, false);
+        if(global.devicestate.localeCompare("online") === 0) {
+            ApiCalls.edit_rent_bike(rentbikeplace);
+        }
         this.props.navigation.goBack();
     }
 
@@ -52,17 +47,15 @@ class ViewElement extends React.Component {
 
     really_delete() {
         let rentbikeplace = this.state;
-        for(let i =0;i<global.rentbikeplaces.length;i++){
-            if(global.rentbikeplaces[i].street.localeCompare(rentbikeplace.street)===0){
-                //global.rentbikeplaces.splice(i, 1);
-                global.rentbikeplaces[i].state = "deleted";
-            }
-        }
 
         rentbikeplace.state = "deleted";
 
-        global.vieewlist.update_callback();
-        global.sync.editOne(rentbikeplace.street, rentbikeplace);
+        global.sync_controller.element_modified(rentbikeplace, false);
+        if(global.devicestate.localeCompare("online") === 0) {
+            ApiCalls.delete_rent_bike(rentbikeplace);
+        }
+
+
         this.props.navigation.goBack();
     }
 

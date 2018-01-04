@@ -27,6 +27,8 @@ global.devicestate = "online";
 
 global.sync_controller = new SyncController();
 
+global.is_list_loaded = false;
+
 global.isLoggedIn = false;
 
 NetInfo.isConnected.addEventListener(

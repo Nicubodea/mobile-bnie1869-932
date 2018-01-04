@@ -49,6 +49,7 @@ class UserViewElement extends React.Component {
                 global.rentbikeplaces[i].isRented = "false";
             }
         }
+        // call api most probably
         global.sync.editOne(rentbikeplace.street, rentbikeplace);
     }
 

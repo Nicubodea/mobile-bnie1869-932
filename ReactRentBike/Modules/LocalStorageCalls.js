@@ -31,12 +31,15 @@ export class LocalStorage {
     static async getAll()
     {
         console.log("Get all on async storage called!");
+        global.is_list_loaded = false;
         await AsyncStorage.getAllKeys((error, keys) => LocalStorage.keysReady(error, keys));
         console.log(JSON.stringify(global.rentbikeplaces));
     }
 
     static async keysReady(error, keys)
     {
+        global.noKeys = keys.length - 1;
+        global.noTotalKeys = 0;
         for (let i = 0; i < keys.length; i++) {
             if(keys[i].localeCompare("token") === 0)
             {
@@ -48,9 +51,16 @@ export class LocalStorage {
 
     static async getOne(error, result)
     {
+        global.noTotalKeys += 1;
         global.rentbikeplaces.push(JSON.parse(result));
         console.log(`[INFO] Succesfully loaded element ${result}`);
         global.vieewlist.update_callback();
+
+        if(global.noTotalKeys === global.noKeys) {
+            global.is_list_loaded = true;
+            global.sync_controller.merge();
+        }
+
     }
 
 

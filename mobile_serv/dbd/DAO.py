@@ -1,5 +1,9 @@
 import sqlite3
 
+from update_server.UpdateServ import UpdateServ
+import json
+
+
 class DAO:
 
     class __DAO:
@@ -40,6 +44,31 @@ class DAO:
         if DAO.instance is None:
             DAO.instance = DAO.__DAO()
 
+    def _convert_user_to_dict(self, user):
+        dicti = {}
+        dicti['id'] = user[0]
+        dicti['name'] = user[1]
+        dicti['passhash'] = user[2]
+        dicti['role'] = user[3]
+        return dicti
+
+    def _convert_rental_to_dict(self, rental):
+        dicti = {}
+        dicti['id'] = rental[0]
+        dicti['id_user'] = rental[1]
+        dicti['id_rentbike'] = rental[2]
+        return dicti
+
+    def _convert_rentbike_to_dict(self, rentbike):
+        dicti = {}
+        # STREET, TOTAL, AVAILABLE, ACTIVE
+        dicti['id'] = rentbike[0]
+        dicti['street'] = rentbike[1]
+        dicti['total'] = rentbike[2]
+        dicti['available'] = rentbike[3]
+        dicti['active'] = rentbike[4]
+        return dicti
+
     ###################################################################################################################
     ############################################ RENT BIKE CRUD #######################################################
     ###################################################################################################################
@@ -48,7 +77,7 @@ class DAO:
         ans = True
         print("---> add_rent_bike called with params %s %s %s %s" % (street, str(total), str(available), str(active)))
         conn = sqlite3.connect("rentbike.db")
-        if active:
+        if active == 1:
             t_act = 1
         else:
             t_act = 0
@@ -58,6 +87,10 @@ class DAO:
                 t_act) + " )")
             conn.commit()
             print("---> add_rent_bike succeeded")
+
+            notify = {"street": street, "total": total, "available": available, "active": "Active" if active == 1 else "Inactive", "state": "created"}
+            UpdateServ.notify_observers(json.dumps(notify))
+
         except Exception as e:
             print("---> add_rent_bike failed with exception %s, will rollback" % (str(e)))
             conn.rollback()
@@ -74,32 +107,68 @@ class DAO:
         try:
             cursor = conn.execute("SELECT * FROM RENTBIKE")
             for row in cursor:
-                to_return.append(row)
+                to_return.append(self._convert_rentbike_to_dict(row))
             conn.close()
 
             print("---> get_all_rent_bike succeeded - result: %s" % str(to_return))
             return to_return
         except Exception as e:
-            print("---> get_all_rent_bike failed")
+            print("---> get_all_rent_bike failed with exception %s" % str(e))
             return None
 
-    def delete_rent_bike(self, id):
-        pass
+    def delete_rent_bike(self, street):
+        ans = True
+        print("---> delete_rentbike called with params %s " % (str(street)))
+        conn = sqlite3.connect("rentbike.db")
+        try:
+            conn.execute("DELETE FROM RENTBIKE WHERE STREET = " + "\'" + street + "\'")
+            conn.commit()
+            print("---> delete_rentbike succeeded")
+
+            notify = {"street": street, "state": "deleted"}
+            UpdateServ.notify_observers(json.dumps(notify))
+
+        except Exception as e:
+            print("---> ddelete_rentbike failed with exception %s, will rollback" % (str(e)))
+            conn.rollback()
+            ans = False
+
+        conn.close()
+        return ans
 
     def edit_rent_bike(self, id, street, total, available, active):
-        pass
+        ans = True
+        print("---> edit_rentbike called with params %s %s %s %s %s " % (str(id), street, str(total), str(available), str(active)))
+        conn = sqlite3.connect("rentbike.db")
+        if active == 1:
+            t_act = 1
+        else:
+            t_act = 0
+        try:
+            conn.execute("UPDATE RENTBIKE SET " +
+                         "TOTAL = " + str(total) +
+                         ",AVAILABLE = " + str(available) +
+                         ",ACTIVE = " + str(t_act) +
+                         " WHERE STREET = " + "\'" + street + "\'")
+            conn.commit()
+            print("---> edit_rentbike succeeded")
+
+            notify = {"street": street, "total": total, "available": available,
+                      "active": "Active" if active == 1 else "Inactive", "state": "edited"}
+            UpdateServ.notify_observers(json.dumps(notify))
+
+        except Exception as e:
+            print("---> edit_rentbike failed with exception %s, will rollback" % (str(e)))
+            conn.rollback()
+            ans = False
+
+        conn.close()
+        return ans
 
     ###################################################################################################################
     ############################################### USERS CRUD ########################################################
     ###################################################################################################################
-
-    def _convert_user_to_dict(self, user):
-        dicti = {}
-        dicti['id'] = user[0]
-        dicti['name'] = user[1]
-        dicti['passhash'] = user[2]
-        dicti['role'] = user[3]
-        return dicti
+        
 
     def add_user(self, name, pass_hash, role):
         ans = True
@@ -138,14 +207,73 @@ class DAO:
     ############################################### RENTALS CRUD ######################################################
     ###################################################################################################################
 
-    def add_rental(self, id_user, id_rentbike):
-        pass
+    def add_rental(self, id_user, street):
+        ans = True
+        print("---> add_rental called with params %s %s" % (str(id_user), str(street)))
+        conn = sqlite3.connect("rentbike.db")
+        try:
 
-    def delete_rental(self, id_user, id_rentbike):
-        pass
+            cursor = conn.execute("SELECT * FROM RENTBIKE WHERE STREET=" + "\'" + street + "\'")
+            id_rentbike = 0
+            for row in cursor:
+                id_rentbike = row[0]
+
+            if id_rentbike == 0:
+                raise Exception("Rentbike with this street not found")
+
+            conn.execute("INSERT INTO RENTALS (ID_USER, ID_RENTBIKE) \
+                                          VALUES (" + id_user + "," + id_rentbike + " )")
+            conn.commit()
+            print("---> add_rental succeeded")
+        except Exception as e:
+            print("---> add_rental failed with exception %s, will rollback" % (str(e)))
+            conn.rollback()
+            ans = False
+
+        conn.close()
+        return ans
+
+    def delete_rental(self, id_user, street):
+        ans = True
+        print("---> delete_rental called with params %s %s" % (str(id_user), str(street)))
+        conn = sqlite3.connect("rentbike.db")
+        try:
+
+            cursor = conn.execute("SELECT * FROM RENTBIKE WHERE STREET=" + "\'" + street + "\'")
+            id_rentbike = 0
+            for row in cursor:
+                id_rentbike = row[0]
+
+            if id_rentbike == 0:
+                raise Exception("Rentbike with this street not found")
+
+            conn.execute("DELETE FROM RENTALS WHERE ID_USER = " + id_user + "AND ID_RENTBIKE = " + id_rentbike)
+            conn.commit()
+            print("---> delete_rental succeeded")
+        except Exception as e:
+            print("---> delete_rental failed with exception %s, will rollback" % (str(e)))
+            conn.rollback()
+            ans = False
+
+        conn.close()
+        return ans
+
 
     def get_all_rentals(self, id_user):
-        pass
+        print("---> get_all_rentals called with param %s" % id_user)
+        to_return = []
+        conn = sqlite3.connect("rentbike.db")
+        try:
+            cursor = conn.execute("SELECT * FROM RENTALS WHERE ID_USER = " + id_user)
+            for row in cursor:
+                to_return.append(self._convert_rental_to_dict(row))
+            conn.close()
+
+            print("---> get_user_by_name succeeded - result: %s" % str(to_return))
+            return to_return
+        except Exception as e:
+            print("---> get_user_by_name failed: %s" % str(e))
+            return None
 
 
 if __name__ == "__main__":

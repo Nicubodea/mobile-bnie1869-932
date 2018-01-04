@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Button, Navigator, ListView, Alert, Picker} from 'react-native';
 import Communications from 'react-native-communications';
+import {ApiCalls} from "../ApiCalls";
+
+
 
 class AddElement extends React.Component {
     static navigationOptions = {
@@ -32,9 +35,11 @@ class AddElement extends React.Component {
             return;
         }
 
-        global.rentbikeplaces.push({street:this.state.street, numberOfBikes:this.state.numberOfBikes, numberOfAvailable:this.state.numberOfAvailable, active:this.state.active});
-        global.vieewlist.update_callback();
-        global.sync.addOne(rentbikeplace.street, rentbikeplace);
+        global.sync_controller.element_created(this.state);
+
+        if(global.devicestate.localeCompare("online") === 0) {
+            ApiCalls.add_rent_bike(this.state);
+        }
 
         //global.sync.getAll();
         this.props.navigation.goBack();

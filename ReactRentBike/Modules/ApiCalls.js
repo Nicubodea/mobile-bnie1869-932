@@ -36,19 +36,47 @@ export class ApiCalls {
     //RentBike API
 
     static add_rent_bike(rentbikeplace) {
-        //return fetch(ApiCalls.server_path + "/add_rent_bike")
+        return fetch(ApiCalls.server_path + "/add_new_rbp", {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: "token=" + global.token + "&street=" + rentbikeplace.street + "&total=" + rentbikeplace.numberOfBikes + "&available=" + rentbikeplace.numberOfAvailable + "&active=" + rentbikeplace.active
+        }).then((response) => response.json()).then((json) => ApiCalls._parse_json(json));
     }
 
     static delete_rent_bike(rentbikeplace) {
-
+        return fetch(ApiCalls.server_path + "/delete_rbp", {
+            method: 'DELETE',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: "token="+global.token+"&street="+rentbikeplace.street
+        }).then((response) => response.json()).then((json) => ApiCalls._parse_json(json));
     }
 
     static edit_rent_bike(rentbikeplace) {
-
+        return fetch(ApiCalls.server_path + "/edit_rbp", {
+            method: 'PUT',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: "token="+global.token+"&street="+rentbikeplace.street+"&total="+rentbikeplace.numberOfBikes+"&available="+rentbikeplace.numberOfAvailable+"&active="+rentbikeplace.active
+        }).then((response) => response.json()).then((json) => ApiCalls._parse_json(json));
     }
 
     static merge_rent_bike(rentbikeplacelist) {
-
+        return fetch(ApiCalls.server_path + "/merge", {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: "list="+JSON.stringify(rentbikeplacelist)
+        }).then((response) => response.json()).then((json) => ApiCalls._parse_json(json));
     }
 
 
