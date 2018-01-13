@@ -5,6 +5,9 @@ import jwt
 from dbd.DAO import DAO
 import hashlib
 
+from http_server import PushServ
+
+
 class MobHttpServ(BaseHTTPRequestHandler):
 
     def not_found(self):
@@ -200,6 +203,12 @@ class MobHttpServ(BaseHTTPRequestHandler):
         self.send_success_with_key("result", json.dumps(to_return))
 
 
+    def handle_post_token(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        PushServ.PushServer.add_new_token(token)
+        self.send_success_with_key("reason", "OK")
+
+
     ############################################## GETS ##############################################################
     def handle_get_get_all(self):
         dao = DAO()
@@ -326,6 +335,9 @@ class MobHttpServ(BaseHTTPRequestHandler):
 
         elif self.path == "/merge":
             self.handle_post_merge(postvars)
+
+        elif self.path == "/token":
+            self.handle_post_token(postvars)
 
         else:
             self.not_found()

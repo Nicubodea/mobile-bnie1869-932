@@ -1,5 +1,8 @@
 from websocket_server import WebsocketServer
 
+from http_server.PushServ import PushServer
+
+
 class UpdateServ:
     def new_client(self, client, server):
         print("New client connected " + str(client))
@@ -13,5 +16,6 @@ class UpdateServ:
     @staticmethod
     def notify_observers(operation):
         print("Sending message %s" % operation)
+        PushServer.send_to_all("List has changed")
         UpdateServ.server.send_message_to_all(operation)
 

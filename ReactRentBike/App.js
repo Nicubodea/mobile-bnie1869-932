@@ -16,6 +16,32 @@ import {LocalStorage} from './Modules/LocalStorageCalls';
 import {SyncController} from "./Modules/SyncController";
 
 
+
+/*
+
+Push Notifications
+
+ */
+
+import {
+    Notifications,
+} from 'expo';
+
+import {registerForPushNotificationsAsync} from './pushNotifications';
+
+registerForPushNotificationsAsync();
+
+function _handleNotification(notification) {
+    console.log(notification.data)
+}
+
+Notifications.addListener(_handleNotification);
+
+
+/*
+Globals
+ */
+
 global.rentbikeplaces = [
 
 ];

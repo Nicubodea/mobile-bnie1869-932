@@ -31,7 +31,7 @@ def client_sim():
                 dao.add_rent_bike(last, 2,1,1)
             elif command == 2:
                 dao.edit_rent_bike(0, last, 3,2,1)
-                dao.edit_rent_bike(0, last,2,1,1)
+                #dao.edit_rent_bike(0, last,2,1,1)
             elif command == 3:
                 dao.delete_rent_bike(last)
         except:
