@@ -5,20 +5,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ro.ubbcluj.scs.bnie1869.rentbike.user.UserViewListActivity">
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:id="@+id/user_listlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:orientation="vertical">
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/user_viewListTabs"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="@+id/user_button">
 
                 <android.support.design.widget.TabItem
@@ -44,9 +48,12 @@
             <ListView
                 android:id="@+id/user_mylist"
                 android:layout_width="match_parent"
-                android:layout_height="464dp" />
+                android:layout_height="464dp"
+                tools:layout_editor_absoluteY="48dp" />
 
         </LinearLayout>
+
+
 
     </ScrollView>
 

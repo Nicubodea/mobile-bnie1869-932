@@ -3,6 +3,7 @@ package ro.ubbcluj.scs.bnie1869.rentbike.utils;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.SyncHttpClient;
 
 import ro.ubbcluj.scs.bnie1869.rentbike.model.Token;
 import ro.ubbcluj.scs.bnie1869.rentbike.model.User;
@@ -13,6 +14,7 @@ import ro.ubbcluj.scs.bnie1869.rentbike.model.User;
 
 public class HttpCalls {
     private static AsyncHttpClient client = new AsyncHttpClient();
+    private static SyncHttpClient sync_client = new SyncHttpClient();
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.get(Globals.SERVER_PATH + url, params, responseHandler);
@@ -20,6 +22,10 @@ public class HttpCalls {
 
     public static void post(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(Globals.SERVER_PATH + url, params, responseHandler);
+    }
+
+    public static void post_sync(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
+        sync_client.post(Globals.SERVER_PATH + url, params, responseHandler);
     }
 
     public static void put(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {

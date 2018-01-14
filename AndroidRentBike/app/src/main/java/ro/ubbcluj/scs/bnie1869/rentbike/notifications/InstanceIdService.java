@@ -34,7 +34,7 @@ public class InstanceIdService extends FirebaseInstanceIdService {
     private void sendRegistrationToServer(String token) {
         RequestParams rp = new RequestParams();
         rp.add("token", token);
-        HttpCalls.post("/token_android", rp, new JsonHttpResponseHandler() {
+        HttpCalls.post_sync("/token_android", rp, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

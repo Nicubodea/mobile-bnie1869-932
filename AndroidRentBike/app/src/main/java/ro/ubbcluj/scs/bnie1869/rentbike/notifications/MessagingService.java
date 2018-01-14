@@ -48,5 +48,5 @@ public class MessagingService extends FirebaseMessagingService {
     private void handleNow() {
         Log.d(TAG, "Short lived task is done.");
     }
-    
+
 }
