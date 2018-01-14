@@ -3,6 +3,8 @@ package ro.ubbcluj.scs.bnie1869.rentbike;
 import android.annotation.SuppressLint;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
 import ro.ubbcluj.scs.bnie1869.rentbike.utils.HttpCalls;
 import ro.ubbcluj.scs.bnie1869.rentbike.utils.LocalStorage;
 import ro.ubbcluj.scs.bnie1869.rentbike.db.RentBikePlaceDB;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.SyncController;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             protected void onPostExecute(Void result) {
                 if (Globals.token == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
+                    //inish();
                 } else {
                     RequestParams rp = new RequestParams();
                     rp.add("token", Globals.token.token);
@@ -87,10 +90,10 @@ public class MainActivity extends AppCompatActivity {
                                         JSONObject user = new JSONObject(serverResp.getString("user"));
                                         if (user.getInt("role") == 0) {
                                             startActivity(new Intent(MainActivity.this, UserContactActivity.class));
-                                            finish();
+                                            //finish();
                                         } else if (user.getInt("role") == 1) {
                                             startActivity(new Intent(MainActivity.this, ContactActivity.class));
-                                            finish();
+                                            //finish();
                                         }
 
                                     } catch (JSONException e) {
@@ -111,9 +114,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Globals.SyncController = new SyncController();
+        registerReceiver(
+                Globals.SyncController,
+                new IntentFilter(
+                        ConnectivityManager.CONNECTIVITY_ACTION));
 
         init_globals();
         check_login_status_and_redirect();
 
+    }
+
+    protected void onStop() {
+        super.onStop();
     }
 }

@@ -22,9 +22,10 @@ public class Globals {
     static public Token token;
     static public Boolean isListLoaded;
     static public Boolean isLoggedIn;
+    static public SyncController SyncController;
 
 
     static public String SERVER_PATH = "http://192.168.0.157";
-    static public String WS_SERVER_PATH;
+    static public String WS_SERVER_PATH = "http://192.168.0.157:7474";
 
 }
