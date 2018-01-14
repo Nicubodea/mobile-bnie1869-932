@@ -222,6 +222,11 @@ class MobHttpServ(BaseHTTPRequestHandler):
         PushServ.PushServer.add_new_token(token)
         self.send_success_with_key("reason", "OK")
 
+    def handle_post_token_android(self, postvars):
+        token = postvars[b'token'][0].decode('utf-8')
+        PushServ.PushServer.add_new_token_android(token)
+        self.send_success_with_key("reason", "OK")
+
 
     ############################################## GETS ##############################################################
     def handle_get_get_all(self):
@@ -352,6 +357,9 @@ class MobHttpServ(BaseHTTPRequestHandler):
 
         elif self.path == "/token":
             self.handle_post_token(postvars)
+
+        elif self.path == "/token_android":
+            self.handle_post_android_token(postvars)
 
         elif self.path == "/delete_rbp":
             self.handle_delete_rbp(postvars)

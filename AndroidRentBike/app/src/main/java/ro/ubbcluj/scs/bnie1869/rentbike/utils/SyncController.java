@@ -75,12 +75,17 @@ public class SyncController extends BroadcastReceiver {
             isConnected = false;
             if(ws != null) {
                 ws.close(1000, "No internet");
+                ws = null;
             }
         }
 
         System.out.println("Connected = " + Boolean.toString(isConnected));
         Globals.isAppConnected = isConnected;
         if(isConnected) {
+            if(ws != null) {
+                ws.close(1000, "Reconnecting...");
+                ws = null;
+            }
             SyncController.create_web_socket();
 
             if(Globals.isListLoaded) {

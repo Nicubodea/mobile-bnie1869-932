@@ -47,8 +47,8 @@ public class UserContactActivity extends AppCompatActivity {
 
     public void onSendClick(View v) {
 
-        TextView subjectView = findViewById(R.id.editText3);
-        TextView messageView = findViewById(R.id.editText2);
+        TextView subjectView = findViewById(R.id.user_editText3);
+        TextView messageView = findViewById(R.id.user_editText2);
 
         String subject = subjectView.getText().toString();
         String message = messageView.getText().toString();

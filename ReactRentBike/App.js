@@ -32,7 +32,7 @@ import {registerForPushNotificationsAsync} from './pushNotifications';
 registerForPushNotificationsAsync();
 
 function _handleNotification(notification) {
-    console.log(JSON.stringify(notification))
+    console.log("NOTIFICATION: " + JSON.stringify(notification.data))
 }
 
 Notifications.addListener(_handleNotification);
