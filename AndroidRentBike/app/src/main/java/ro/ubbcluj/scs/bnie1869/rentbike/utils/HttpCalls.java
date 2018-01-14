@@ -27,6 +27,6 @@ public class HttpCalls {
     }
 
     public static void delete(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
-        client.delete(Globals.SERVER_PATH + url, params, responseHandler);
+        client.post(Globals.SERVER_PATH + url, params, responseHandler);
     }
 }

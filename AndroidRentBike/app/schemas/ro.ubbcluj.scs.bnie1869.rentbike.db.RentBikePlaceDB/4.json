@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "ab322b076ada4d4973d27903de410c0b",
+    "version": 4,
+    "identityHash": "83bdeaea17ffd3b86162e95ca72830a4",
     "entities": [
       {
         "tableName": "rentbikeplaces",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`address` TEXT, `number_bikes` INTEGER, `number_available` INTEGER, `state` TEXT, PRIMARY KEY(`address`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`address` TEXT, `number_bikes` INTEGER, `number_available` INTEGER, `state` TEXT, `active` INTEGER, PRIMARY KEY(`address`))",
         "fields": [
           {
             "fieldPath": "street",
@@ -27,6 +27,11 @@
             "fieldPath": "state",
             "columnName": "state",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -60,7 +65,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"ab322b076ada4d4973d27903de410c0b\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"83bdeaea17ffd3b86162e95ca72830a4\")"
     ]
   }
 }

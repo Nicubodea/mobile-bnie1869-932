@@ -48,8 +48,8 @@ class PushServer:
             raise exc
 
     @staticmethod
-    def send_to_all(message):
+    def send_to_all(message, extra=None):
         print("send_to_all, tokens = %s" % str(PushServer.tokens))
         for token in PushServer.tokens:
-            PushServer.send_to_one(token, message)
+            PushServer.send_to_one(token, message, extra)
 

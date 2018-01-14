@@ -1,5 +1,6 @@
 package ro.ubbcluj.scs.bnie1869.rentbike.admin;
 
+import android.app.DownloadManager;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,8 +10,17 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import cz.msebera.android.httpclient.Header;
 import ro.ubbcluj.scs.bnie1869.rentbike.R;
 import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.HttpCalls;
 import ro.ubbcluj.scs.bnie1869.rentbike.utils.SyncController;
 
 public class CreateActivity extends AppCompatActivity {
@@ -57,7 +67,6 @@ public class CreateActivity extends AppCompatActivity {
         editTextNumberOfAvailable.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                //Log.i(TAG, "[NUMBER OF AVAILABLE] User picked: " + Integer.toString(i) + "; " + Integer.toString(i1));
                 numberPicker.setValue(i1);
             }
         });
@@ -65,8 +74,6 @@ public class CreateActivity extends AppCompatActivity {
         editTextNumberOfBikes.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-
-                //Log.i(TAG, "[TOTAL] User picked: " + Integer.toString(i) + "; " + Integer.toString(i1));
                 numberPicker.setValue(i1);
             }
         });
@@ -85,30 +92,30 @@ public class CreateActivity extends AppCompatActivity {
                     Toast.makeText(CreateActivity.this, "Can't have more available bikes than bikes!", Toast.LENGTH_LONG).show();
                     return;
                 }
-/*
-                if(!createNewRentBikePlace(street, total, avail))
-                {
+
+                RequestParams rp = new RequestParams();
+                rp.add("token", Globals.token.token);
+                rp.add("street", street);
+                rp.add("total", total.toString());
+                rp.add("available", avail.toString());
+                rp.add("active", "Active");
+
+                HttpCalls.post("/add_new_rbp", rp, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        try {
+                            if(response.getString("status").compareTo("Success") != 0) {
+                                System.out.println(response.getString("reason"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                if(!SyncController.elementCreated(new RentBikePlace(street, total, avail, "created"), false)) {
                     Toast.makeText(CreateActivity.this, "Street exists already", Toast.LENGTH_LONG).show();
                     return;
-                }
-                ((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
-
-                // we must sync our data with the server and local storage
-
-
-                new AsyncTask<Void, Void, Void>() {
-
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        ContactActivity.localStorage.add(new RentBikePlace(street, total, avail, "undefined"));
-                        return null;
-                    }
-                }.execute();
-
-*/
-
-                if(!SyncController.elementCreated(new RentBikePlace(street, total, avail, "created"))) {
-
                 }
                 Toast.makeText(CreateActivity.this, "Created succesfully!", Toast.LENGTH_LONG).show();
                 onBackPressed();

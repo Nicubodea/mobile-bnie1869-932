@@ -54,7 +54,16 @@ public class MainActivity extends AppCompatActivity {
                         Globals.showRentBikePlaceList.add(Globals.rentBikePlaceList.get(i));
                     }
                 }
+
+                Globals.isListLoaded = true;
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                if(Globals.rentBikePlaceList.size() == 0) {
+                    SyncController.merge();
+                }
             }
         }.execute();
 

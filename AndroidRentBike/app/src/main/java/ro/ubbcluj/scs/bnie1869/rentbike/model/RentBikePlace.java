@@ -15,20 +15,23 @@ import java.util.UUID;
 public class RentBikePlace {
     @PrimaryKey
             @ColumnInfo(name="address")
-    public String address;
+    public String street;
             @ColumnInfo(name="number_bikes")
-    public Integer numberOfBikes;
+    public Integer total;
             @ColumnInfo(name="number_available")
-    public Integer numberOfAvailableBikes;
+    public Integer available;
             @ColumnInfo(name="state")
     public String state;
+            @ColumnInfo(name="active")
+    public String active;
 
     @Ignore
     public RentBikePlace(String address, Integer numberOfBikes, Integer numberOfAvailableBikes, String state) {
-        this.address = address;
-        this.numberOfBikes = numberOfBikes;
-        this.numberOfAvailableBikes = numberOfAvailableBikes;
+        this.street = address;
+        this.total = numberOfBikes;
+        this.available = numberOfAvailableBikes;
         this.state = state;
+        this.active = "Inactive";
     }
 
     public RentBikePlace() {
@@ -44,31 +47,39 @@ public class RentBikePlace {
 
     public String getAddress() {
 
-        return address;
+        return street;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.street = address;
     }
 
     public Integer getNumberOfBikes() {
-        return numberOfBikes;
+        return total;
     }
 
     public void setNumberOfBikes(Integer numberOfBikes) {
-        this.numberOfBikes = numberOfBikes;
+        this.total = numberOfBikes;
     }
 
     @Override
     public String toString() {
-        return address + ": " + this.numberOfAvailableBikes.toString() + "/" + this.numberOfBikes.toString();
+        return street + ": " + this.available.toString() + "/" + this.total.toString();
     }
 
     public Integer getNumberOfAvailableBikes() {
-        return numberOfAvailableBikes;
+        return available;
     }
 
     public void setNumberOfAvailableBikes(Integer numberOfAvailableBikes) {
-        this.numberOfAvailableBikes = numberOfAvailableBikes;
+        this.available = numberOfAvailableBikes;
+    }
+
+    public String getActive() {
+        return active;
+    }
+
+    public void setActive(String active) {
+        this.active = active;
     }
 }

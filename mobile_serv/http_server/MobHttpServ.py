@@ -115,9 +115,18 @@ class MobHttpServ(BaseHTTPRequestHandler):
     def _transform_rentbike(self, x):
         dicti = {}
         dicti['street'] = x['street']
-        dicti['active'] = 0 if x['active'] == 'Inactive' else 1
-        dicti['total'] = x['numberOfBikes']
-        dicti['available'] = x['numberOfAvailable']
+        try:
+            dicti['active'] = 0 if x['active'] == 'Inactive' else 1
+        except:
+            dicti['active'] = 0
+        try:
+            dicti['total'] = x['numberOfBikes']
+        except:
+            dicti['total'] = x['total']
+        try:
+            dicti['available'] = x['numberOfAvailable']
+        except:
+            dicti['available'] = x['available']
         try:
             dicti['state'] = x['state']
         except:
@@ -179,9 +188,14 @@ class MobHttpServ(BaseHTTPRequestHandler):
             found = False
             for element_2 in user_list:
                 if element['street'] == element_2['street']:
-                    if int(element['total']) != int(element_2['total']) or int(element['available']) != int(element_2['available']) or int(element['active']) != int(element_2['active']):
-                        to_return.append(element)
-                        to_return[len(to_return) - 1]['state'] = 'edited'
+                    try:
+                        if int(element['total']) != int(element_2['total']) or int(element['available']) != int(element_2['available']) or int(element['active']) != int(element_2['active']):
+                            to_return.append(element)
+                            to_return[len(to_return) - 1]['state'] = 'edited'
+                    except:
+                        if int(element['total']) != int(element_2['total']) or int(element['available']) != int(element_2['available']):
+                            to_return.append(element)
+                            to_return[len(to_return) - 1]['state'] = 'edited'
                     found = True
 
             if not found:
@@ -339,6 +353,8 @@ class MobHttpServ(BaseHTTPRequestHandler):
         elif self.path == "/token":
             self.handle_post_token(postvars)
 
+        elif self.path == "/delete_rbp":
+            self.handle_delete_rbp(postvars)
         else:
             self.not_found()
 

@@ -146,7 +146,7 @@ public class UserDetailsActivity extends AppCompatActivity {
     RentBikePlace getRentBikePlace(String address) {
         int i;
         for(i=0; i< Globals.showRentBikePlaceList.size(); i++) {
-            if(address.compareTo(Globals.showRentBikePlaceList.get(i).address) == 0) {
+            if(address.compareTo(Globals.showRentBikePlaceList.get(i).street) == 0) {
                 return Globals.showRentBikePlaceList.get(i);
             }
         }

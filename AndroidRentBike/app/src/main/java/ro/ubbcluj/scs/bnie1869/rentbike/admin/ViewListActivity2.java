@@ -73,9 +73,7 @@ public class ViewListActivity2 extends AppCompatActivity {
 
     void populateBikeList() {
 
-        List<RentBikePlace> currentList = Globals.showRentBikePlaceList;
-
-        ListView listView = findViewById(R.id.mylist);
+        ListView listView = Globals.listView;
 
         listView.setAdapter(new ArrayAdapter<RentBikePlace>(this, android.R.layout.simple_list_item_1, Globals.showRentBikePlaceList));
 

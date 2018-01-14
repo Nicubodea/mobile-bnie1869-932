@@ -22,12 +22,19 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import cz.msebera.android.httpclient.Header;
 import ro.ubbcluj.scs.bnie1869.rentbike.R;
 import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
 import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.HttpCalls;
 import ro.ubbcluj.scs.bnie1869.rentbike.utils.SyncController;
 
 public class DetailsActivity extends AppCompatActivity {
@@ -113,22 +120,25 @@ public class DetailsActivity extends AppCompatActivity {
                         Toast.makeText(DetailsActivity.this, "Can't have more available bikes than bikes!", Toast.LENGTH_LONG).show();
                         return;
                     }
-                    //setRentBikePlace(currentAddress, nrOfBikes, nrOfAv);
+                    RequestParams rp = new RequestParams();
+                    rp.add("token", Globals.token.token);
+                    rp.add("street", currentAddress);
+                    rp.add("total", nrOfBikes.toString());
+                    rp.add("available", nrOfAv.toString());
+                    rp.add("active", "Active");
 
-                    //((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
-
-                    // sync with server and local storage
-
-                    /*
-                    new AsyncTask<Void, Void, Void>() {
-
+                    HttpCalls.put("/edit_rbp", rp, new JsonHttpResponseHandler() {
                         @Override
-                        protected Void doInBackground(Void... voids) {
-                            ContactActivity.localStorage.update(new RentBikePlace(currentAddress, nrOfBikes, nrOfAv, "edited"));
-                            return null;
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            try {
+                                if(response.getString("status").compareTo("Success") != 0) {
+                                    System.out.println(response.getString("reason"));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }.execute();
-                    */
+                    });
 
                     SyncController.elementModified(new RentBikePlace(currentAddress, nrOfBikes, nrOfAv, "edited"), false);
 
@@ -158,21 +168,26 @@ public class DetailsActivity extends AppCompatActivity {
                         RentBikePlace oldRentBikePlace = DetailsActivity.this.getRentBikePlace(currentAddress);
 
                         final RentBikePlace savedRentBikePlace = new RentBikePlace(oldRentBikePlace.getAddress(), oldRentBikePlace.getNumberOfBikes(), oldRentBikePlace.getNumberOfAvailableBikes(), "deleted");
-/*
-                        new AsyncTask<Void, Void, Void>() {
 
+                        RequestParams rp = new RequestParams();
+                        rp.add("token", Globals.token.token);
+                        rp.add("street", savedRentBikePlace.street);
+
+                        System.out.println(Globals.token.token);
+                        System.out.println(savedRentBikePlace.street);
+
+                        HttpCalls.delete("/delete_rbp", rp, new JsonHttpResponseHandler() {
                             @Override
-                            protected Void doInBackground(Void... voids) {
-                                ContactActivity.localStorage.delete(savedRentBikePlace);
-                                return null;
+                            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                try {
+                                    if(response.getString("status").compareTo("Success") != 0) {
+                                        System.out.println(response.getString("reason"));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
-                        }.execute();
-
-                        DetailsActivity.this.deleteRentBikePlace(currentAddress);
-
-                        ((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
-
-*/
+                        });
 
                         SyncController.elementModified(savedRentBikePlace, false);
 
@@ -253,7 +268,7 @@ public class DetailsActivity extends AppCompatActivity {
     RentBikePlace getRentBikePlace(String address) {
         int i;
         for(i=0; i< Globals.showRentBikePlaceList.size(); i++) {
-            if(address.compareTo(Globals.showRentBikePlaceList.get(i).address) == 0) {
+            if(address.compareTo(Globals.showRentBikePlaceList.get(i).street) == 0) {
                 return Globals.showRentBikePlaceList.get(i);
             }
         }
