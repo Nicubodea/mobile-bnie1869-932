@@ -4,24 +4,107 @@ import android.annotation.SuppressLint;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.design.widget.TabLayout;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.TextView;
+
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+
+import cz.msebera.android.httpclient.Header;
+import ro.ubbcluj.scs.bnie1869.rentbike.admin.ContactActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.common.LoginActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.Token;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.User;
+import ro.ubbcluj.scs.bnie1869.rentbike.user.UserContactActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.HttpCalls;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.LocalStorage;
+import ro.ubbcluj.scs.bnie1869.rentbike.db.RentBikePlaceDB;
 
 public class MainActivity extends AppCompatActivity {
 
-    Boolean bSubjectChanged = false;
-    static List<RentBikePlace> listOfBikes;
-    static RentBikePlaceDB databaseSingleton;
-    static Synchronizer synchronizer;
+    @SuppressLint("StaticFieldLeak")
+    private void init_globals() {
+        Globals.databaseSingleton = Room.databaseBuilder(getApplicationContext(), RentBikePlaceDB.class, "dummy-database").build();
+        Globals.localStorage = new LocalStorage(Globals.databaseSingleton);
+        Globals.isAppConnected = true;
+        Globals.isListLoaded = false;
+        Globals.isLoggedIn = false;
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Globals.rentBikePlaceList = Globals.localStorage.getList();
+                Globals.showRentBikePlaceList = new ArrayList<>();
+
+                for(int i = 0; i<Globals.rentBikePlaceList.size(); i++) {
+                    if(Globals.rentBikePlaceList.get(i).state.compareTo("deleted") != 0) {
+                        Globals.showRentBikePlaceList.add(Globals.rentBikePlaceList.get(i));
+                    }
+                }
+                return null;
+            }
+        }.execute();
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private void check_login_status_and_redirect() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                Globals.token = Globals.localStorage.getToken();
+                return null;
+            }
+
+            protected void onPostExecute(Void result) {
+                if (Globals.token == null) {
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                } else {
+                    RequestParams rp = new RequestParams();
+                    rp.add("token", Globals.token.token);
+                    HttpCalls.post("/get_my_user", rp, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                                    // If the response is JSONObject instead of expected JSONArray
+                                    try {
+                                        JSONObject serverResp = new JSONObject(response.toString());
+                                        if (serverResp.getString("status").compareTo("Success") != 0) {
+                                            System.out.println("Eroare");
+                                            return;
+                                        }
+
+                                        JSONObject user = new JSONObject(serverResp.getString("user"));
+                                        if (user.getInt("role") == 0) {
+                                            startActivity(new Intent(MainActivity.this, UserContactActivity.class));
+                                            finish();
+                                        } else if (user.getInt("role") == 1) {
+                                            startActivity(new Intent(MainActivity.this, ContactActivity.class));
+                                            finish();
+                                        }
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                    );
+                }
+            }
+
+        }.execute();
+
+    }
 
     @SuppressLint("StaticFieldLeak")
     @Override
@@ -29,66 +112,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final TabLayout layout = findViewById(R.id.mainTabs);
+        init_globals();
+        check_login_status_and_redirect();
 
-        layout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition() == 1) {
-                    layout.getTabAt(0).select();
-                    startActivity(new Intent(MainActivity.this, ViewListActivity2.class));
-
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        // init the db
-        MainActivity.databaseSingleton = Room.databaseBuilder(getApplicationContext(), RentBikePlaceDB.class, "dummy-database").build();
-        MainActivity.synchronizer = new Synchronizer(MainActivity.databaseSingleton);
-
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                MainActivity.listOfBikes = MainActivity.synchronizer.getList();
-                return null;
-            }
-        }.execute();
-
-
-        //MainActivity.listOfBikes.add(new RentBikePlace("Strada Fabricii nr. 16", 21, 10));
-        //MainActivity.listOfBikes.add(new RentBikePlace("Strada 21 Decembrie 1989", 44, 15));
-        //MainActivity.listOfBikes.add(new RentBikePlace("Strada Alunelor nr. 44", 66, 33));
-
-
-    }
-
-    void onSendClick(View v) {
-
-        TextView subjectView = findViewById(R.id.editText3);
-        TextView messageView = findViewById(R.id.editText2);
-
-        String subject = subjectView.getText().toString();
-        String message = messageView.getText().toString();
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-
-
-        intent.setType("message/rfc822");
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"nicubodea96@gmail.com"});
-        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(Intent.EXTRA_TEXT, message);
-
-        startActivity(Intent.createChooser(intent, "Send Email"));
     }
 }

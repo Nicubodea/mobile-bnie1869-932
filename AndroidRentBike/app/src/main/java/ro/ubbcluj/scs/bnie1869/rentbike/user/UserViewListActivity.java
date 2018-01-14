@@ -1,4 +1,4 @@
-package ro.ubbcluj.scs.bnie1869.rentbike;
+package ro.ubbcluj.scs.bnie1869.rentbike.user;
 
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
@@ -8,29 +8,29 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ViewListActivity2 extends AppCompatActivity {
+import ro.ubbcluj.scs.bnie1869.rentbike.R;
+import ro.ubbcluj.scs.bnie1869.rentbike.admin.ContactActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.admin.CreateActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.admin.DetailsActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.admin.ViewListActivity2;
+import ro.ubbcluj.scs.bnie1869.rentbike.common.LoginActivity;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
 
-    public static ListView staticMyList;
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        this.finish();
-    }
+public class UserViewListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_list2);
+        setContentView(R.layout.activity_user_view_list);
 
-        ViewListActivity2.staticMyList = findViewById(R.id.mylist);
-        TabLayout layout = findViewById(R.id.viewListTabs);
+
+        Globals.listView = findViewById(R.id.user_mylist);
+        TabLayout layout = findViewById(R.id.user_viewListTabs);
         layout.getTabAt(1).select();
 
         populateBikeList();
@@ -39,6 +39,11 @@ public class ViewListActivity2 extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition() == 0) {
+                    startActivity(new Intent(UserViewListActivity.this, UserContactActivity.class));
+                    finish();
+                }
+                if(tab.getPosition() == 2) {
+                    startActivity(new Intent(UserViewListActivity.this, LoginActivity.class));
                     finish();
                 }
             }
@@ -54,24 +59,16 @@ public class ViewListActivity2 extends AppCompatActivity {
             }
         });
 
-        Button createButton = findViewById(R.id.createButton);
-
-        createButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ViewListActivity2.this, CreateActivity.class));
-            }
-        });
     }
 
 
     void populateBikeList() {
 
-        List<RentBikePlace> currentList = getBikeList();
+        List<RentBikePlace> currentList = Globals.showRentBikePlaceList;
 
-        ListView listView = findViewById(R.id.mylist);
+        ListView listView = findViewById(R.id.user_mylist);
 
-        listView.setAdapter(new ArrayAdapter<RentBikePlace>(this, android.R.layout.simple_list_item_1, MainActivity.listOfBikes));
+        listView.setAdapter(new ArrayAdapter<RentBikePlace>(this, android.R.layout.simple_list_item_1, Globals.showRentBikePlaceList));
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -82,7 +79,7 @@ public class ViewListActivity2 extends AppCompatActivity {
                 String address = item.getAddress();
 
                 Intent intent;
-                intent = new Intent(ViewListActivity2.this, DetailsActivity.class);
+                intent = new Intent(UserViewListActivity.this, UserDetailsActivity.class);
                 intent.putExtra("address", address);
                 startActivity(intent);
             }
@@ -90,11 +87,4 @@ public class ViewListActivity2 extends AppCompatActivity {
         });
 
     }
-
-
-    List<RentBikePlace> getBikeList() {
-       return MainActivity.listOfBikes;
-
-    }
-
 }

@@ -1,28 +1,22 @@
-package ro.ubbcluj.scs.bnie1869.rentbike;
+package ro.ubbcluj.scs.bnie1869.rentbike.admin;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
@@ -30,6 +24,11 @@ import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+
+import ro.ubbcluj.scs.bnie1869.rentbike.R;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.Globals;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.SyncController;
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -114,21 +113,24 @@ public class DetailsActivity extends AppCompatActivity {
                         Toast.makeText(DetailsActivity.this, "Can't have more available bikes than bikes!", Toast.LENGTH_LONG).show();
                         return;
                     }
-                    setRentBikePlace(currentAddress, nrOfBikes, nrOfAv);
+                    //setRentBikePlace(currentAddress, nrOfBikes, nrOfAv);
 
-                    ((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
+                    //((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
 
                     // sync with server and local storage
 
-
+                    /*
                     new AsyncTask<Void, Void, Void>() {
 
                         @Override
                         protected Void doInBackground(Void... voids) {
-                            MainActivity.synchronizer.update(new RentBikePlace(currentAddress, nrOfBikes, nrOfAv));
+                            ContactActivity.localStorage.update(new RentBikePlace(currentAddress, nrOfBikes, nrOfAv, "edited"));
                             return null;
                         }
                     }.execute();
+                    */
+
+                    SyncController.elementModified(new RentBikePlace(currentAddress, nrOfBikes, nrOfAv, "edited"), false);
 
                     Toast.makeText(DetailsActivity.this, "Edited succesfully!", Toast.LENGTH_LONG).show();
                     onBackPressed();
@@ -155,13 +157,13 @@ public class DetailsActivity extends AppCompatActivity {
 
                         RentBikePlace oldRentBikePlace = DetailsActivity.this.getRentBikePlace(currentAddress);
 
-                        final RentBikePlace savedRentBikePlace = new RentBikePlace(oldRentBikePlace.getAddress(), oldRentBikePlace.getNumberOfBikes(), oldRentBikePlace.getNumberOfAvailableBikes());
-
+                        final RentBikePlace savedRentBikePlace = new RentBikePlace(oldRentBikePlace.getAddress(), oldRentBikePlace.getNumberOfBikes(), oldRentBikePlace.getNumberOfAvailableBikes(), "deleted");
+/*
                         new AsyncTask<Void, Void, Void>() {
 
                             @Override
                             protected Void doInBackground(Void... voids) {
-                                MainActivity.synchronizer.delete(savedRentBikePlace);
+                                ContactActivity.localStorage.delete(savedRentBikePlace);
                                 return null;
                             }
                         }.execute();
@@ -170,6 +172,9 @@ public class DetailsActivity extends AppCompatActivity {
 
                         ((BaseAdapter)ViewListActivity2.staticMyList.getAdapter()).notifyDataSetChanged();
 
+*/
+
+                        SyncController.elementModified(savedRentBikePlace, false);
 
                         Toast.makeText(DetailsActivity.this, "Deleted succesfully!", Toast.LENGTH_LONG).show();
                         onBackPressed();
@@ -185,9 +190,6 @@ public class DetailsActivity extends AppCompatActivity {
                 dialog.show();
             }
         }));
-
-
-
 
         PieChart pieChart = findViewById(R.id.piechart);
 
@@ -250,20 +252,21 @@ public class DetailsActivity extends AppCompatActivity {
 
     RentBikePlace getRentBikePlace(String address) {
         int i;
-        for(i=0; i<MainActivity.listOfBikes.size(); i++) {
-            if(address.compareTo(MainActivity.listOfBikes.get(i).address) == 0) {
-                return MainActivity.listOfBikes.get(i);
+        for(i=0; i< Globals.showRentBikePlaceList.size(); i++) {
+            if(address.compareTo(Globals.showRentBikePlaceList.get(i).address) == 0) {
+                return Globals.showRentBikePlaceList.get(i);
             }
         }
         return null;
     }
 
+    /*
     void deleteRentBikePlace(String address) {
 
         int i;
-        for(i=0; i<MainActivity.listOfBikes.size(); i++) {
-            if(address.compareTo(MainActivity.listOfBikes.get(i).address) == 0) {
-                MainActivity.listOfBikes.remove(i);
+        for(i=0; i< ContactActivity.listOfBikes.size(); i++) {
+            if(address.compareTo(ContactActivity.listOfBikes.get(i).address) == 0) {
+                ContactActivity.listOfBikes.remove(i);
                 break;
             }
         }
@@ -271,13 +274,13 @@ public class DetailsActivity extends AppCompatActivity {
 
     void setRentBikePlace(String address, Integer nrBikes, Integer nrAvailable) {
         int i;
-        for(i=0; i<MainActivity.listOfBikes.size(); i++) {
-            if(address.compareTo(MainActivity.listOfBikes.get(i).address) == 0) {
-                MainActivity.listOfBikes.get(i).setNumberOfBikes(nrBikes);
-                MainActivity.listOfBikes.get(i).setNumberOfAvailableBikes(nrAvailable);
+        for(i=0; i< ContactActivity.listOfBikes.size(); i++) {
+            if(address.compareTo(ContactActivity.listOfBikes.get(i).address) == 0) {
+                ContactActivity.listOfBikes.get(i).setNumberOfBikes(nrBikes);
+                ContactActivity.listOfBikes.get(i).setNumberOfAvailableBikes(nrAvailable);
             }
         }
     }
-
+    */
 
 }

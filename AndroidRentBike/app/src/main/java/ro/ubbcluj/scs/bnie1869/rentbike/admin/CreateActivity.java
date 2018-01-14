@@ -1,16 +1,17 @@
-package ro.ubbcluj.scs.bnie1869.rentbike;
+package ro.ubbcluj.scs.bnie1869.rentbike.admin;
 
-import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
+
+import ro.ubbcluj.scs.bnie1869.rentbike.R;
+import ro.ubbcluj.scs.bnie1869.rentbike.model.RentBikePlace;
+import ro.ubbcluj.scs.bnie1869.rentbike.utils.SyncController;
 
 public class CreateActivity extends AppCompatActivity {
 
@@ -84,7 +85,7 @@ public class CreateActivity extends AppCompatActivity {
                     Toast.makeText(CreateActivity.this, "Can't have more available bikes than bikes!", Toast.LENGTH_LONG).show();
                     return;
                 }
-
+/*
                 if(!createNewRentBikePlace(street, total, avail))
                 {
                     Toast.makeText(CreateActivity.this, "Street exists already", Toast.LENGTH_LONG).show();
@@ -99,11 +100,16 @@ public class CreateActivity extends AppCompatActivity {
 
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        MainActivity.synchronizer.add(new RentBikePlace(street, total, avail));
+                        ContactActivity.localStorage.add(new RentBikePlace(street, total, avail, "undefined"));
                         return null;
                     }
                 }.execute();
 
+*/
+
+                if(!SyncController.elementCreated(new RentBikePlace(street, total, avail, "created"))) {
+
+                }
                 Toast.makeText(CreateActivity.this, "Created succesfully!", Toast.LENGTH_LONG).show();
                 onBackPressed();
             }
@@ -112,16 +118,19 @@ public class CreateActivity extends AppCompatActivity {
 
     }
 
+        /*
     public boolean createNewRentBikePlace(String street, int total, int avail)
     {
         int i;
-        for(i=0; i<MainActivity.listOfBikes.size(); i++) {
-            if (street.compareTo(MainActivity.listOfBikes.get(i).address) == 0) {
+        for(i=0; i< ContactActivity.listOfBikes.size(); i++) {
+            if (street.compareTo(ContactActivity.listOfBikes.get(i).address) == 0) {
                 return false;
             }
         }
 
-        MainActivity.listOfBikes.add(new RentBikePlace(street, total, avail));
+        ContactActivity.listOfBikes.add(new RentBikePlace(street, total, avail, "undefined"));
         return true;
+
     }
+    */
 }

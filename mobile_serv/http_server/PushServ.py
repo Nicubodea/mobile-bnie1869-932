@@ -13,6 +13,9 @@ class PushServer:
 
     @staticmethod
     def add_new_token(token):
+        for token2 in PushServer.tokens:
+            if token == token2:
+                return
         PushServer.tokens.append(token)
 
     @staticmethod

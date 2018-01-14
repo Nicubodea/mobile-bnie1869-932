@@ -56,5 +56,6 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
+    compile 'com.loopj.android:android-async-http:1.4.9'
 
 }

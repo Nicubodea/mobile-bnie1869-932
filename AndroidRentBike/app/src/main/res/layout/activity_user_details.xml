@@ -4,23 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.admin.ContactActivity">
+    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.user.UserDetailsActivity">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/detailslayout"
+            android:id="@+id/user_detailslayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <android.support.design.widget.TabLayout
-                android:id="@+id/detailsTabs"
+                android:id="@+id/user_detailsTabs"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="@+id/button">
+                app:layout_constraintBottom_toBottomOf="@+id/user_button">
 
                 <android.support.design.widget.TabItem
                     android:layout_width="wrap_content"
@@ -30,34 +30,22 @@
             </android.support.design.widget.TabLayout>
 
             <TextView
-                android:id="@+id/streetText"
+                android:id="@+id/user_streetText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
             <NumberPicker
-                android:id="@+id/pickerTotal"
+                android:id="@+id/user_pickerTotal"
                 android:layout_width="match_parent"
                 android:layout_height="58dp" />
 
             <NumberPicker
-                android:id="@+id/pickerAvailable"
+                android:id="@+id/user_pickerAvailable"
                 android:layout_width="match_parent"
                 android:layout_height="58dp" />
 
-            <Button
-                android:id="@+id/editButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Edit" />
-
-            <Button
-                android:id="@+id/deleteButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Delete" />
-
             <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/piechart"
+                android:id="@+id/user_piechart"
                 android:layout_width="match_parent"
                 android:layout_height="285dp">
 
@@ -66,5 +54,4 @@
         </LinearLayout>
 
     </ScrollView>
-
 </android.support.constraint.ConstraintLayout>

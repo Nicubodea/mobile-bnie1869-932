@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.CreateActivity">
+    tools:context="ro.ubbcluj.scs.bnie1869.rentbike.admin.CreateActivity">
 
     <ScrollView
         android:layout_width="match_parent"

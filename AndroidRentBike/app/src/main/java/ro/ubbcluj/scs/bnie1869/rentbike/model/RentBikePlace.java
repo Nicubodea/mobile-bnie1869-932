@@ -1,4 +1,4 @@
-package ro.ubbcluj.scs.bnie1869.rentbike;
+package ro.ubbcluj.scs.bnie1869.rentbike.model;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
@@ -15,20 +15,31 @@ import java.util.UUID;
 public class RentBikePlace {
     @PrimaryKey
             @ColumnInfo(name="address")
-    String address;
+    public String address;
             @ColumnInfo(name="number_bikes")
-    Integer numberOfBikes;
+    public Integer numberOfBikes;
             @ColumnInfo(name="number_available")
-    Integer numberOfAvailableBikes;
+    public Integer numberOfAvailableBikes;
+            @ColumnInfo(name="state")
+    public String state;
 
     @Ignore
-    public RentBikePlace(String address, Integer numberOfBikes, Integer numberOfAvailableBikes) {
+    public RentBikePlace(String address, Integer numberOfBikes, Integer numberOfAvailableBikes, String state) {
         this.address = address;
         this.numberOfBikes = numberOfBikes;
         this.numberOfAvailableBikes = numberOfAvailableBikes;
+        this.state = state;
     }
 
     public RentBikePlace() {
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getAddress() {

@@ -40,6 +40,14 @@ export class LocalStorage {
     {
         global.noKeys = keys.length - 1;
         global.noTotalKeys = 0;
+        console.log(global.noKeys);
+        // first login, list is empty, call merge to server
+        if(global.noKeys === -1 || global.noKeys === 0) {
+
+            global.is_list_loaded = true;
+            global.sync_controller.merge();
+        }
+
         for (let i = 0; i < keys.length; i++) {
             if(keys[i].localeCompare("token") === 0)
             {
