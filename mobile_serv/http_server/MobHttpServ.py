@@ -225,7 +225,7 @@ class MobHttpServ(BaseHTTPRequestHandler):
         PushServ.PushServer.add_new_token(token)
         self.send_success_with_key("reason", "OK")
 
-    def handle_post_token_android(self, postvars):
+    def handle_post_android_token(self, postvars):
         token = postvars[b'token'][0].decode('utf-8')
         PushServ.PushServer.add_new_token_android(token)
         self.send_success_with_key("reason", "OK")
