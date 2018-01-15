@@ -177,6 +177,9 @@ class MobHttpServ(BaseHTTPRequestHandler):
             if element['state'] == 'created':
                 dao.add_rent_bike(element['street'], element['total'], element['available'], element['active'])
             elif element['state'] == 'edited':
+                # handle the case: user offline, added a rentbike then edited it; only the last modification will be sent, even if it is created
+                # if only an edit was applied, then transaction will get rollbacked and everything is OK
+                dao.add_rent_bike(element['street'], element['total'], element['available'], element['active'])
                 dao.edit_rent_bike(0, element['street'], element['total'], element['available'], element['active'])
             elif element['state'] == 'deleted':
                 dao.delete_rent_bike(element['street'])
